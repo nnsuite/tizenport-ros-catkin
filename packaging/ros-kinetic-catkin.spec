@@ -9,7 +9,6 @@ Source0:        %{name}-%{version}.tar.gz
 Source1001:     %{name}.manifest
 
 Requires:       cmake
-Requires:       googletest-devel
 Requires:       python-argparse
 Requires:       python-catkin_pkg >= 0.1.21
 Requires:       python-empy
