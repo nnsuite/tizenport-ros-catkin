@@ -22,7 +22,7 @@ BuildRequires:  python-empy
 BuildRequires:  python-nose
 
 %define         ros_distro kinetic
-%define         ros_root /opt/ros
+%define         ros_root /usr/lib/ros
 %define         install_path %{ros_root}/%{ros_distro}
 
 %description
