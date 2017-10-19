@@ -7,6 +7,7 @@ License:        BSD
 URL:            http://www.ros.org/wiki/catkin
 Source0:        %{name}-%{version}.tar.gz
 Source1001:     %{name}.manifest
+Source1002:     macros
 
 Requires:       cmake
 Requires:       python-argparse
@@ -48,7 +49,7 @@ make install DESTDIR=%{buildroot}
 popd
 
 mkdir -p %{buildroot}%{rpmhome}/macros.d
-install -m 644 packaging/macros %{buildroot}%{rpmhome}/macros.d/macros.catkin
+install -m 644 %{SOURCE1002} %{buildroot}%{rpmhome}/macros.d/macros.catkin
 
 %post
 # For catkin build for other ROS package, environment setup script is provided on version-independent path.
