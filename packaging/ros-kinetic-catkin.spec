@@ -8,6 +8,10 @@ URL:            http://www.ros.org/wiki/catkin
 Source0:        %{name}-%{version}.tar.gz
 Source1001:     %{name}.manifest
 Source1002:     macros
+Source1003:	ros-kinetic.conf
+
+# Workaround to disable check-buildroot of RPM, causing false-positive breaks for ros_comm
+Source1004:	ros-build.sh
 
 Requires:       cmake
 Requires:       python-argparse
@@ -51,6 +55,12 @@ popd
 mkdir -p %{buildroot}%{rpmhome}/macros.d
 install -m 644 %{SOURCE1002} %{buildroot}%{rpmhome}/macros.d/macros.catkin
 
+mkdir -p %{buildroot}/etc/ld.so.conf.d
+install -m 644 %{SOURCE1003} %{buildroot}/etc/ld.so.conf.d/
+
+mkdir -p %{buildroot}/etc/profile.d
+install -m 755 %{SOURCE1004} %{buildroot}/etc/profile.d/
+
 %post
 # For catkin build for other ROS package, environment setup script is provided on version-independent path.
 ln -sf %{install_path}/setup.sh /usr/setup.sh
@@ -68,5 +78,7 @@ fi
 %{install_path}/bin/*
 %{install_path}/lib/python2.7/site-packages/*
 %{rpmhome}/macros.d/macros.catkin
+/etc/ld.so.conf.d/ros-kinetic.conf
+/etc/profile.d/ros-build.sh
 
 %changelog 
