@@ -24,6 +24,7 @@ BuildRequires:  python-nose
 %define         ros_distro kinetic
 %define         ros_root /usr/lib/ros
 %define         install_path %{ros_root}/%{ros_distro}
+%define         rpmhome %{_prefix}/lib/rpm
 
 %description
 Low-level build system macros and infrastructure for ROS.
@@ -46,6 +47,9 @@ pushd build
 make install DESTDIR=%{buildroot}
 popd
 
+mkdir -p %{buildroot}%{rpmhome}/macros.d
+install -m 644 packaging/macros %{buildroot}%{rpmhome}/macros.d/macros.catkin
+
 %post
 # For catkin build for other ROS package, environment setup script is provided on version-independent path.
 ln -sf %{install_path}/setup.sh /usr/setup.sh
@@ -62,5 +66,6 @@ fi
 %{install_path}/.rosinstall
 %{install_path}/bin/*
 %{install_path}/lib/python2.7/site-packages/*
+%{rpmhome}/macros.d/macros.catkin
 
 %changelog 
