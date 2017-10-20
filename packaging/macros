@@ -18,3 +18,35 @@ pushd build \
 make install DESTDIR=%{buildroot} \
 popd \
 %{nil}
+
+%__ros_build_pkg \
+mkdir -p build && pushd build \
+cmake .. -DCMAKE_INSTALL_PREFIX="%{__ros_install_path}" -DCMAKE_PREFIX_PATH="%{__ros_install_path};%{buildroot}%{__ros_install_path}" -DSETUPTOOLS_DEB_LAYOUT=OFF -DCATKIN_BUILD_BINARY_PACKAGE="1" \
+make %{?_smp_mflags} \
+popd \
+%{nil}
+
+%__ros_in_build() \
+pushd %{1} \
+%{__ros_build_pkg} \
+popd \
+%{nil}
+
+%__ros_in_install() \
+pushd %{1} \
+%{__ros_install} \
+popd \
+%{nil}
+
+%__ros_in_pkg() \
+%package -n ros-kinetic-%{2} \
+Summary:  ROS %{2} package \
+%{nil}
+
+%__ros_in_files()	\
+%description -n ros-kinetic-%{2} \
+ROS %{2} package \
+%files -n ros-kinetic-%{2} -f %{1}/build/install_manifest.txt \
+%manifest %{name}.manifest \
+%defattr(-,root,root) \
+%{nil}
