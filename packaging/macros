@@ -36,6 +36,7 @@ popd \
 pushd %{1} \
 %{__ros_install} \
 popd \
+touch %{buildroot}%{__ros_install_path}/.catkin \
 %{nil}
 
 %__ros_in_pkg() \
@@ -49,4 +50,5 @@ ROS %{2} package \
 %files -n ros-kinetic-%{2} -f %{1}/build/install_manifest.txt \
 %manifest %{name}.manifest \
 %defattr(-,root,root) \
+%ghost %{__ros_install_path}/.catkin \
 %{nil}
