@@ -45,11 +45,15 @@ touch %{buildroot}%{__ros_install_path}/.catkin \
 Summary:  ROS %{2} package \
 %{nil}
 
-%__ros_in_files()	\
-%description -n ros-kinetic-%{2} \
-ROS %{2} package \
+%__ros_in_files_nodesc()	\
 %files -n ros-kinetic-%{2} -f %{1}/build/install_manifest.txt \
 %manifest %{name}.manifest \
 %defattr(-,root,root) \
 %ghost %{__ros_install_path}/.catkin \
+%{nil}
+
+%__ros_in_files()	\
+%description -n ros-kinetic-%{2} \
+ROS %{2} package \
+%__ros_in_files_nodesc %{1} %{2} \
 %{nil}
