@@ -9,7 +9,7 @@ if [ -f "/usr/setup.sh" ]; then . "/usr/setup.sh"; fi \
 
 %__ros_build \
 mkdir build && pushd build \
-cmake .. -DCMAKE_INSTALL_PREFIX="%{__ros_install_path}" -DCMAKE_PREFIX_PATH="%{__ros_install_path}" -DSETUPTOOLS_DEB_LAYOUT=OFF -DCATKIN_BUILD_BINARY_PACKAGE="1" \
+cmake .. -DCMAKE_INSTALL_PREFIX="%{__ros_install_path}" -DCMAKE_PREFIX_PATH="%{buildroot}%{__ros_install_path};%{__ros_install_path}" -DSETUPTOOLS_DEB_LAYOUT=OFF -DCATKIN_BUILD_BINARY_PACKAGE="1" \
 make %{?_smp_mflags} \
 popd \
 %{nil}
@@ -22,7 +22,7 @@ popd \
 
 %__ros_build_pkg \
 mkdir -p build && pushd build \
-cmake .. -DCMAKE_INSTALL_PREFIX="%{__ros_install_path}" -DCMAKE_PREFIX_PATH="%{__ros_install_path};%{buildroot}%{__ros_install_path}" -DSETUPTOOLS_DEB_LAYOUT=OFF -DCATKIN_BUILD_BINARY_PACKAGE="1" \
+cmake .. -DCMAKE_INSTALL_PREFIX="%{__ros_install_path}" -DCMAKE_PREFIX_PATH="%{buildroot}%{__ros_install_path};%{__ros_install_path}" -DSETUPTOOLS_DEB_LAYOUT=OFF -DCATKIN_BUILD_BINARY_PACKAGE="1" \
 make %{?_smp_mflags} \
 popd \
 %{nil}
