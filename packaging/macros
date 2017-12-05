@@ -3,6 +3,46 @@
 %__ros_install_path  %{__ros_root}/%{__ros_distro}
 %install_path        %{__ros_install_path}
 
+
+%__ros_dep_setup() \
+pkgs=`cat %{1} | grep %%package | sed 's/%%package\\s*//'` \
+req_builds=`cat %{1} | grep BuildRequires | grep -v '\#' | sed -r -e 's/BuildRequires:\\s*\(.*\)/\\1/' | sed -r -e 's/\(.*\)[><].*/\\1/'` \
+%{nil}
+
+%__ros_dep_check() \
+req_pkgs=`cat %{1} | grep build_depend | grep -v '<!' | sed -r -e 's@.*<build_depend>\(.*\)<\/build_depend>.*@\\L\\1@' | sed -r -e 's/_/-/g'` \
+for req_pkg in ${req_pkgs[@]}; do \
+    found=false \
+    for req_build in ${req_builds[@]}; do \
+        if [[ $req_build == *"$req_pkg"* ]]; then \
+            found=true \
+            echo $req_pkg $req_build \
+            break \
+        fi \
+    done \
+    if [ $found = false ]; then \
+        for pkg in ${pkgs[@]}; do \
+            if [[ $pkg == *"$req_pkg"* ]]; then \
+                found=true \
+                echo $req_pkg $pkg \
+                break \
+            fi \
+        done \
+    fi \
+    if [ $found = false ]; then \
+        echo "Couln't find package [$req_pkg] in the BuildRequires. Please check spec and package.xml" \
+        exit -1 \
+    fi \
+done \
+%{nil}
+
+%__ros_dep_in_check() \
+pushd %{1} \
+%__ros_dep_check %{2} \
+popd \
+%{nil}
+
+
 %__ros_setup \
 if [ -f "/usr/setup.sh" ]; then . "/usr/setup.sh"; fi \
 %{nil}
