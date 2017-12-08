@@ -1,14 +1,26 @@
+## @brief ROS ditribution information
+##
 %__ros_distro        kinetic
 %__ros_root          /usr/lib/ros
 %__ros_install_path  %{__ros_root}/%{__ros_distro}
 %install_path        %{__ros_install_path}
 
 
+## @brief ROS dependency check setup
+##  It setup global variables fot dependency check using package.xml (of ROS pakcage) and spec file
+## @param
+##  arg1: spec file path
+##
 %__ros_dep_setup() \
 pkgs=`cat %{1} | grep %%package | sed 's/%%package\\s*//'` \
 req_builds=`cat %{1} | grep BuildRequires | grep -v '\#' | sed -r -e 's/BuildRequires:\\s*\(.*\)/\\1/' | sed -r -e 's/\(.*\)[><].*/\\1/'` \
 %{nil}
 
+
+## @bridef ROS dependency check
+## @param
+##  arg1: 'package.xml' path
+##
 %__ros_dep_check() \
 req_pkgs=`cat %{1} | grep build_depend | grep -v '<!' | sed -r -e 's@.*<build_depend>\(.*\)<\/build_depend>.*@\\L\\1@' | sed -r -e 's/_/-/g'` \
 for req_pkg in ${req_pkgs[@]}; do \
@@ -36,12 +48,59 @@ for req_pkg in ${req_pkgs[@]}; do \
 done \
 %{nil}
 
+## @bridef ROS dependency check for subpackage
+## @param
+##  arg1: package name
+##  arg2: 'package.xml" path
+##
 %__ros_dep_in_check() \
 pushd %{1} \
 %__ros_dep_check %{2} \
 popd \
 %{nil}
 
+## @brief ROS resource verification setup
+##  It setups global variables and functions
+##
+%__ros_verify_setup \
+declare -a res \
+function basename_list() \
+{ \
+    local paths="${@}" \
+    # basename 6.9 doesnot support multiple arguments \
+    res=() \
+    for r in ${paths[@]}; do res+=(`basename $r`); done    \
+} \
+function find_res() \
+{ \
+    local resources=`find ${1} -type f -a ! -regex '.*\\.\\(c\\|cpp\\|h\\|hpp\\|ui\\)' -a ! -regex ".*\\(CMakeLists\\.txt\\|package\\.xml\\|README.*\\|setup\\.py\\)" -a ! -path "*/build/*"` \
+    basename_list $resources \
+} \
+function search_res() \
+{ \
+    local pkg="$1" s="$2"  \
+    shift; shift \
+    local target="${@}" \
+    for r in ${target[@]}; do [[ "$s" == "$r" ]] && return 0; done \
+    echo "Resource is not installed: $s" \
+    return 1 \
+} \
+%{nil}
+
+## @brief ROS resource verification
+## @param
+##  arg1: package name
+##
+%__ros_verify() \
+find_res "%{1}" \
+build_res=${res[@]} \
+basename_list `cat %{1}/build/install_manifest.txt` \
+installed_res=${res[@]} \
+for b_res in ${build_res[@]}; do \
+    search_res "%{1}" $b_res $installed_res \
+    if [[ $? == 1 ]]; then exit 1; fi \
+done \
+%{nil}
 
 %__ros_setup \
 if [ -f "/usr/setup.sh" ]; then . "/usr/setup.sh"; fi \
