@@ -43,7 +43,6 @@ for req_pkg in ${req_pkgs[@]}; do \
     fi \
     if [ $found = false ]; then \
         echo "Couln't find package [$req_pkg] in the BuildRequires. Please check spec and package.xml" \
-        exit -1 \
     fi \
 done \
 %{nil}
@@ -61,9 +60,12 @@ popd \
 
 ## @brief ROS resource verification setup
 ##  It setups global variables and functions
+## @param
+##  arg1: spec file path
 ##
-%__ros_verify_setup \
+%__ros_verify_setup() \
 declare -a res \
+declare -r SPEC_FILE="%{1}" \
 function basename_list() \
 { \
     local paths="${@}" \
@@ -82,8 +84,18 @@ function search_res() \
     shift; shift \
     local target="${@}" \
     for r in ${target[@]}; do [[ "$s" == "$r" ]] && return 0; done \
-    echo "Resource is not installed: $s" \
-    return 1 \
+    echo "Resource is not installed[$pkg]: $s" \
+    return 0 \
+} \
+function spec_files() \
+{ \
+	res=() \
+	local -r NUM=`grep -A 20 "%%files ${1}[ \\n]" ${SPEC_FILE} | grep "%%endif" -n | awk -F':' '{print $1; exit}'` \
+	if [ "$NUM" -le 2 ]; then return 0; fi \
+	local -r PATHS=`grep -A ${NUM} "%%files ${1}[ \\n]" ${SPEC_FILE} | "^\\(%%files\\|%%endif\\|#\\)"` \
+	for file in ${PATHS[@]}; do \
+		res+=(`basename $file`) \
+	done \
 } \
 %{nil}
 
@@ -94,11 +106,12 @@ function search_res() \
 %__ros_verify() \
 find_res "%{1}" \
 build_res=${res[@]} \
-basename_list `cat %{1}/build/install_manifest.txt` \
+spec_files "%{1}" \
 installed_res=${res[@]} \
+basename_list `cat %{1}/build/install_manifest.txt` \
+installed_res+=("${res[@]}") \
 for b_res in ${build_res[@]}; do \
-    search_res "%{1}" $b_res $installed_res \
-    if [[ $? == 1 ]]; then exit 1; fi \
+    search_res "%{1}" $b_res ${installed_res[@]} \
 done \
 %{nil}
 
