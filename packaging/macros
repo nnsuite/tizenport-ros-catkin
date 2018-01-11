@@ -90,9 +90,9 @@ function search_res() \
 function spec_files() \
 { \
 	res=() \
-	local -r NUM=`grep -A 20 "%%files ${1}[ \\n]" ${SPEC_FILE} | grep "%%endif" -n | awk -F':' '{print $1; exit}'` \
+	local -r NUM=`grep -A 20 "%%files ${1}[ \\n]" ${SPEC_FILE} | grep "^$" -n | awk -F':' '{print $1; exit}'` \
 	if [ "$NUM" -le 2 ]; then return 0; fi \
-	local -r PATHS=`grep -A ${NUM} "%%files ${1}[ \\n]" ${SPEC_FILE} | grep -v "^\\(%%files\\|%%endif\\|#\\)"` \
+	local -r PATHS=`grep -A ${NUM} "%%files ${1}[ \\n]" ${SPEC_FILE} | grep -v "^\\(%%files\\|%%license\\|%%endif\\|#\\)"` \
 	for file in ${PATHS[@]}; do \
 		res+=(`basename $file`) \
 	done \
