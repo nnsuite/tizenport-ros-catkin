@@ -18,6 +18,8 @@ Requires:       python-argparse
 Requires:       python-catkin_pkg >= 0.1.21
 Requires:       python-empy
 Requires:       python-nose
+Requires:       python-dateutil
+Requires:       python-docutils
 BuildRequires:  cmake
 BuildRequires:  gcc-c++
 BuildRequires:  gtest-devel
