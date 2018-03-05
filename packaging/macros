@@ -132,16 +132,21 @@ make install DESTDIR=%{buildroot} \
 popd \
 %{nil}
 
-%__ros_build_pkg \
+## @brief ROS build with cmake
+## @param
+##  arg1..N: Additional cmake arguments
+##           Refer to http://rpm.org/user_doc/macros.html
+##
+%__ros_build_pkg() \
 mkdir -p build && pushd build \
-cmake .. -DCMAKE_INSTALL_PREFIX="%{__ros_install_path}" -DCMAKE_PREFIX_PATH="%{buildroot}%{__ros_install_path};%{__ros_install_path}" -DSETUPTOOLS_DEB_LAYOUT=OFF -DCATKIN_BUILD_BINARY_PACKAGE="1" \
+cmake .. -DCMAKE_INSTALL_PREFIX="%{__ros_install_path}" -DCMAKE_PREFIX_PATH="%{buildroot}%{__ros_install_path};%{__ros_install_path}" -DSETUPTOOLS_DEB_LAYOUT=OFF -DCATKIN_BUILD_BINARY_PACKAGE="1" %** \
 make %{?_smp_mflags} \
 popd \
 %{nil}
 
 %__ros_in_build() \
 pushd %{1} \
-%{__ros_build_pkg} \
+%__ros_build_pkg %{?2:%2} \
 popd \
 %{nil}
 
